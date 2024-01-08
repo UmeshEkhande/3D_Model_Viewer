@@ -26,9 +26,6 @@
     <QtRcc Include="Model_Viewer.qrc">
       <Filter>Resource Files</Filter>
     </QtRcc>
-    <QtUic Include="Model_Viewer.ui">
-      <Filter>Form Files</Filter>
-    </QtUic>
     <QtMoc Include="Headers\Model_Viewer.h">
       <Filter>Header Files</Filter>
     </QtMoc>

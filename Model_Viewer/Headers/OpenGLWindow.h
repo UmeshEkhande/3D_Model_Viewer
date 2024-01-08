@@ -6,6 +6,10 @@
 #include <QMainWindow>
 #include <QQuaternion>
 #include <QWheelEvent>
+#include <QMouseEvent>
+#include <QVector2D>
+#include <QBasicTimer>
+#include "Point3D.h"
 
 class QOpenGLTexture;
 class QOpenGLShader;
@@ -18,10 +22,11 @@ public:
     OpenGLWindow(const QColor& background, QMainWindow* parent);
     ~OpenGLWindow();
 
-    void setVectorOfLines(QVector<GLfloat>& vectorOfLines);
-    void setColorOfLines(QVector<GLfloat>& colorOfLines);
-    void updateData(const QVector<GLfloat>& vertices, const QVector<GLfloat>& colors);
+    void updateData(const QVector<GLfloat>& vertices, const QVector<GLfloat>& normals);
     void mouseMoveEvent(QMouseEvent* event);
+
+    void clear();
+    void setFlag(bool inVal);
 
 
 protected:
@@ -39,6 +44,12 @@ signals:
     void shapeUpdate();
 
 private:
+
+    QVector2D mousePressPosition;
+    QVector3D rotationAxis;
+    qreal angularSpeed = 0;
+    QQuaternion rotation;
+
     bool mAnimating = false;
     QOpenGLContext* mContext = nullptr;
     QOpenGLPaintDevice* mDevice = nullptr;
@@ -61,12 +72,17 @@ private:
 
     GLint m_posAttr = 0;
     GLint m_colAttr = 0;
-    GLint m_matrixUniform = 0;
+    GLint m_normals = 0;
+    GLint m_matrixUniform_proj = 0;
+    GLint m_matrixUniform_view = 0;
+    GLint m_matrixUniform_model = 0;
 
     QQuaternion rotationAngle;
     QPoint lastPos;
 
     QVector<GLfloat> verticesOfOrignalLine;
+    QVector<GLfloat> normalsOriginal;
+    std::vector<Point3D> vert;
     QVector<GLfloat> colorOfOrignalLine;
 
     float zoomFactor = 1.0f;
@@ -74,5 +90,12 @@ private:
     GLuint m_ambientColorUniform;
     GLuint m_ambientIntensityUniform;
     QFileSystemWatcher* mShaderWatcher;
+    QMatrix4x4 matrix;
+    QMatrix4x4 panMatrix;
+    QVector2D lastPanPos;
+
+    bool flag = true;
+
+    
 };
 

@@ -18,74 +18,90 @@ Model_Viewer::~Model_Viewer()
 
 void Model_Viewer::setupUi()
 {
-    resize(800, 600);
+
+    resize(1024, 768);
     mCentralWidget = new QWidget(this);
-    QVBoxLayout* mVbuttonsLayout = new QVBoxLayout();
-    QGridLayout* mBaseLayout = new QGridLayout(mCentralWidget);
-    QTabWidget* mTabWidget = new QTabWidget(this);
-    mTabWidget->setFixedSize(900, 720);
+    mMainLayout = new QVBoxLayout(mCentralWidget);
+    mTabWidget = new QTabWidget(this);
+    mTabWidget->setFixedSize(1024, 768);
 
-    QWidget* Tab1 = new QWidget(mTabWidget);
-    QWidget* Tab2 = new QWidget(mTabWidget);
+    modelViewTab = new QWidget(mTabWidget);
 
+    modelViewLayout = new QHBoxLayout(modelViewTab);
     mRenderer = new OpenGLWindow(QColor(0, 0, 0), this);
-    mVbuttonsLayout->addWidget(mRenderer, 1);
-    Tab1->setLayout(mVbuttonsLayout);
-    Tab2->setLayout(mVbuttonsLayout);
+    modelViewLayout->addWidget(mRenderer, 3);  
 
-    mTabWidget->addTab(Tab2, "Tab2");
+    settingsLayout = new QVBoxLayout();
+
+    loadStlButton = new QPushButton("Load Obj");
+    settingsLayout->addWidget(loadStlButton);
+    connect(loadStlButton, &QPushButton::clicked, this, &Model_Viewer::openFileDialog);
+
+    clearButton = new QPushButton("Clear");
+    settingsLayout->addWidget(clearButton);
+    connect(clearButton, &QPushButton::clicked, this, &Model_Viewer::clearnScreen);
+
+    wireFrameButton = new QPushButton("WireFrame View");
+    settingsLayout->addWidget(wireFrameButton);
+    connect(wireFrameButton, &QPushButton::clicked, this, &Model_Viewer::wireFramButtonClicked);
+
+    coloredButton = new QPushButton("Colored View");
+    settingsLayout->addWidget(coloredButton);
+    connect(coloredButton, &QPushButton::clicked, this, &Model_Viewer::ColoredButtonClicked);
+
+
+    modelViewLayout->addLayout(settingsLayout, 0);  
+    mTabWidget->addTab(modelViewTab, "Model View");
+    mMainLayout->addWidget(mTabWidget);
+    setCentralWidget(mCentralWidget);
     setWindowTitle(QCoreApplication::translate("3D Model Viewer", "3D Model Viewer", nullptr));
 }
 
-void Model_Viewer::readSTL()
+
+void Model_Viewer::openFileDialog()
 {
-    std::string filePath = "Resources/cube1.stl";
+    QString qFileName = QFileDialog::getOpenFileName(this, tr("Open Obj File"), "", tr("obj Files (*.obj);;All Files (*)"));
 
-    std::ifstream dataFile;
-    dataFile.open(filePath);
-    if (!dataFile.is_open())
-    {
-        std::cout << "File not exist" << std::endl;
-        return;
-    }
+    if (!qFileName.isEmpty()) {
+        std::string fileName = qFileName.toStdString();
 
-    std::string line;
-    int count = 0;
-    while (std::getline(dataFile, line))
-    {
+        ReadObjFile objReader;
+        objReader.readObjFile(fileName);
 
-        if (line.find("vertex") != std::string::npos)
-        {
-            std::istringstream iss(line);
-            std::string token;
-            double x, y, z;
-            iss >> token >> x >> y >> z;
-            mVertices << x * 10 << y * 10 << z * 10;
-            mColors << 1.0f << 0.0f << 0.0f;
+        vertices = objReader.getVertices();
+        textureCoords = objReader.getTextureCoords();
+        normals = objReader.getNormals();
+        faces = objReader.getFaces();
 
-            std::getline(dataFile, line);
-            std::istringstream iss1(line);
-            std::string token1;
-            double x1, y1, z1;
-            iss1 >> token1 >> x1 >> y1 >> z1;
-            mVertices << x1 * 10 << y1 * 10 << z1 * 10;
-            mColors << 1.0f << 0.0f << 0.0f;
-
-            std::getline(dataFile, line);
-            std::istringstream iss2(line);
-            std::string token2;
-            double x2, y2, z2;
-            iss2 >> token2 >> x2 >> y2 >> z2;
-            mVertices << x2 * 10 << y2 * 10 << z2 * 10;
-            mColors << 1.0f << 0.0f << 0.0f;
-            mVertices << x * 10 << y * 10 << z * 10;
-            mColors << 1.0f << 0.0f << 0.0f;
+        for (int i = 0; i < vertices.size(); i++) {
+            ver << vertices[i].x() << vertices[i].y() << vertices[i].z();
         }
+
+        for (int i = 0; i < normals.size(); i++)
+        {
+            nor << normals[i].x() << normals[i].y() << normals[i].z();
+
+        }
+
+        mRenderer->updateData(ver, nor);
+
     }
-    mRenderer->setVectorOfLines(mVertices);
-    mRenderer->setColorOfLines(mColors);
-    mRenderer->updateData(mVertices, mColors);
-    mVertices.clear();
-    mColors.clear();
-    dataFile.close();
 }
+
+void Model_Viewer::clearnScreen()
+{
+    ver.clear();
+    nor.clear();
+    mRenderer->updateData(ver, nor);
+}
+
+void Model_Viewer::wireFramButtonClicked()
+{
+    mRenderer->setFlag(false);
+}
+
+void Model_Viewer::ColoredButtonClicked()
+{
+    mRenderer->setFlag(true);
+}
+

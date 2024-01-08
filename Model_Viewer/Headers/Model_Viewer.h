@@ -3,6 +3,7 @@
 #include <QtWidgets/QMainWindow>
 #include <Qvector>
 #include "OpenGLWindow.h"
+#include "ReadObjFile.h"
 
 
 class Model_Viewer : public QMainWindow
@@ -15,14 +16,18 @@ public:
 
 private:
     void setupUi();
-
-public:
-    void readSTL();
+    void openFileDialog();
+    void clearnScreen();
+    void wireFramButtonClicked();
+    void ColoredButtonClicked();
 
 private:
     QWidget* mCentralWidget;
     OpenGLWindow* mRenderer;
+    QOpenGLWidget* cubeRenderer;
 
+    QVector<GLfloat> ver;
+    QVector<GLfloat> nor;
 
     QPushButton* mpushButton;
     QPushButton* mpushButtonRead;
@@ -30,4 +35,21 @@ private:
     QVector<GLfloat>mVertices;
     QVector<GLfloat>mColors;
 
+    std::vector<Point3D> vertices;
+    std::vector<Point2D> textureCoords;
+    std::vector<Point3D> normals;
+    std::vector<Face> faces;
+
+    QVBoxLayout* mMainLayout;
+    QTabWidget* mTabWidget;
+
+    QWidget* modelViewTab;
+    QHBoxLayout* modelViewLayout;
+    QVBoxLayout* settingsLayout;
+    QPushButton* clearButton;
+    QPushButton* loadStlButton;
+    QPushButton* wireFrameButton;
+    QPushButton* coloredButton;
+
+    QHBoxLayout* textureLayout;
 };

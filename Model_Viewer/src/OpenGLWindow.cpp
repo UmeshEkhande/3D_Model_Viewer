@@ -9,8 +9,8 @@
 #include <sstream>
 #include <iostream>
 
-OpenGLWindow::OpenGLWindow(const QColor& background, QMainWindow* parent) :
-    mBackground(background) {
+OpenGLWindow::OpenGLWindow(const QColor& background, QMainWindow* parent) :mBackground(background) 
+{
     setParent(parent);
     setMinimumSize(300, 250);
 
@@ -35,6 +35,57 @@ void OpenGLWindow::reset() {
     doneCurrent();
 
     QObject::disconnect(mContextWatchConnection);
+}
+
+void OpenGLWindow::mouseMoveEvent(QMouseEvent* event) {
+    int dx = event->x() - lastPos.x();
+    int dy = event->y() - lastPos.y();
+
+    if (event->buttons() & Qt::LeftButton) {
+        QQuaternion rotX = QQuaternion::fromAxisAndAngle(0.0f, 1.0f, 0.0f, 0.5f * dx);
+        QQuaternion rotY = QQuaternion::fromAxisAndAngle(1.0f, 0.0f, 0.0f, 0.5f * dy);
+
+        rotationAngle = rotX * rotY * rotationAngle;
+        update();
+    }
+
+    lastPos = event->pos();
+
+}
+
+void OpenGLWindow::wheelEvent(QWheelEvent* event) 
+{
+    int delta = event->angleDelta().y();
+
+    if (delta > 0) {
+
+        zoomFactor *= 1.1f;
+    }
+    else {
+        zoomFactor /= 1.1f;
+    }
+    update();
+}
+
+
+void OpenGLWindow::updateData(const QVector<GLfloat>& vertices, const QVector<GLfloat>& normals)
+{
+    verticesOfOrignalLine = vertices;
+    normalsOriginal = normals;
+    update();
+}
+
+void OpenGLWindow::clear()
+{
+    verticesOfOrignalLine.clear();
+    normalsOriginal.clear();
+    update();
+}
+
+void OpenGLWindow::setFlag(bool inVal)
+{
+    flag = inVal;
+    update();
 }
 
 void OpenGLWindow::shaderWatcher()
@@ -71,90 +122,48 @@ QString OpenGLWindow::readShaderSource(QString filePath)
     return fileString;
 }
 
-
-void OpenGLWindow::setVectorOfLines(QVector<GLfloat>& vectorOfLines)
-{
-    verticesOfOrignalLine = vectorOfLines;
-}
-
-void OpenGLWindow::setColorOfLines(QVector<GLfloat>& colorOfLines)
-{
-    colorOfOrignalLine = colorOfLines;
-}
-
-
 void OpenGLWindow::paintGL() {
-    glClear(GL_COLOR_BUFFER_BIT);
+
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
 
     mProgram->bind();
-    QMatrix4x4 matrix;
-    matrix.rotate(rotationAngle);
-  //  matrix.ortho(-30.0f, 30.0f, -30.0f, 30.0f, 0.1f, 100.0f);
-    matrix.ortho(-30.0f * zoomFactor, 30.0f * zoomFactor, -30.0f * zoomFactor, 30.0f * zoomFactor, 0.1f, 100.0f);
-    matrix.translate(0, 0, -15);
+    QMatrix4x4 matrix_proj;
+    QMatrix4x4 matrix_view;
+    QMatrix4x4 matrix_model;
+    matrix_model.rotate(rotationAngle);
+    matrix_proj.ortho(-30.0f * zoomFactor, 30.0f * zoomFactor, -30.0f * zoomFactor, 30.0f * zoomFactor, 0.1f, 100.0f);
+    matrix_view.translate(0, 0, -15);
 
-    mProgram->setUniformValue(m_matrixUniform, matrix);
+    mProgram->setUniformValue(m_matrixUniform_proj, matrix_proj);
+    mProgram->setUniformValue(m_matrixUniform_view, matrix_view);
+    mProgram->setUniformValue(m_matrixUniform_model, matrix_model);
 
     GLfloat* verticesData = verticesOfOrignalLine.data();
-    GLfloat* colorsData = colorOfOrignalLine.data();
+    GLfloat* normalData = normalsOriginal.data();
 
     glVertexAttribPointer(m_posAttr, 3, GL_FLOAT, GL_FALSE, 0, verticesData);
-    glVertexAttribPointer(m_colAttr, 3, GL_FLOAT, GL_FALSE, 0, colorsData);
+    glVertexAttribPointer(m_normals, 3, GL_FLOAT, GL_FALSE, 0, normalData);
 
     glEnableVertexAttribArray(m_posAttr);
-    glEnableVertexAttribArray(m_colAttr);
+    glEnableVertexAttribArray(m_normals);
 
-    glDrawArrays(GL_LINE_LOOP, 0, verticesOfOrignalLine.size() / 3);
-}
-
-
-
-void OpenGLWindow::mouseMoveEvent(QMouseEvent* event) {
-    int dx = event->x() - lastPos.x();
-    int dy = event->y() - lastPos.y();
-
-    if (event->buttons() & Qt::LeftButton) {
-        QQuaternion rotX = QQuaternion::fromAxisAndAngle(0.0f, 1.0f, 0.0f, 0.5f * dx);
-        QQuaternion rotY = QQuaternion::fromAxisAndAngle(1.0f, 0.0f, 0.0f, 0.5f * dy);
-
-        rotationAngle = rotX * rotY * rotationAngle;
-
-        update();
-    }
-    lastPos = event->pos();
-}
-
-void OpenGLWindow::wheelEvent(QWheelEvent* event) 
-{
-    int delta = event->angleDelta().y();
-
-    if (delta > 0) {
-
-        zoomFactor *= 1.1f;
+    if (flag) {
+        glDrawArrays(GL_TRIANGLES, 0, verticesOfOrignalLine.size() / 3);
     }
     else {
-
-        zoomFactor /= 1.1f;
+        glDrawArrays(GL_LINE_LOOP, 0, verticesOfOrignalLine.size() / 3);
     }
-    update();
 }
-
-
-void OpenGLWindow::updateData(const QVector<GLfloat>& vertices, const QVector<GLfloat>& colors)
-{
-    verticesOfOrignalLine = vertices;
-    colorOfOrignalLine = colors;
-    update();
-}
-
 
 void OpenGLWindow::initializeGL() {
-
+    initializeOpenGLFunctions();
 
     QString vertexShaderSource = readShaderSource("./Shaders/vShader.glsl");
     QString fragmentShaderSource = readShaderSource("./Shaders/fShader.glsl");
 
-    initializeOpenGLFunctions();
     setMouseTracking(true);
 
     mProgram = new QOpenGLShaderProgram(this);
@@ -164,11 +173,8 @@ void OpenGLWindow::initializeGL() {
     mProgram->link();
 
     m_posAttr = mProgram->attributeLocation("posAttr");
-    Q_ASSERT(m_posAttr != -1);
-    m_colAttr = mProgram->attributeLocation("colAttr");
-    Q_ASSERT(m_colAttr != -1);
-    m_matrixUniform = mProgram->uniformLocation("matrix");
-    Q_ASSERT(m_matrixUniform != -1);
-
-
+    m_normals = mProgram->attributeLocation("normalAttr"); 
+    m_matrixUniform_proj = mProgram->uniformLocation("u_ProjMatrix");
+    m_matrixUniform_view = mProgram->uniformLocation("u_viewMatrix");
+    m_matrixUniform_model = mProgram->uniformLocation("u_modelMatrix");
 }

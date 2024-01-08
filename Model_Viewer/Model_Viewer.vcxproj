@@ -66,8 +66,12 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>F:\Umesh_Ekhande\OpenGL\3D_Model_Viewer_Project_It\3D_Model_Viewer\3D_Model_Viewer\Model_Viewer\Headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>F:\Umesh_Ekhande\OpenGL\3D_Model_Viewer_Project_It\3D_Model_Viewer\3D_Model_Viewer_Test\Model_Viewer\Headers;F:\Umesh_Ekhande\OpenGL\3D_Model_Viewer_Project_It\3D_Model_Viewer\3D_Model_Viewer_Test\Geometry\Headers;F:\Umesh_Ekhande\OpenGL\3D_Model_Viewer_Project_It\3D_Model_Viewer\3D_Model_Viewer_Test\ObjReader\Headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>F:\Umesh_Ekhande\OpenGL\3D_Model_Viewer_Project_It\3D_Model_Viewer\3D_Model_Viewer_Test\Model_Viewer\x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>Geometry.lib;ObjReader.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
     <ClCompile>
@@ -106,7 +110,6 @@
   <ItemGroup>
     <ClInclude Include="Headers\OpenGLWindow.h" />
     <QtRcc Include="Model_Viewer.qrc" />
-    <QtUic Include="Model_Viewer.ui" />
     <QtMoc Include="Headers\Model_Viewer.h" />
     <ClCompile Include="src\OpenGLWindow.cpp" />
     <ClCompile Include="src\Model_Viewer.cpp" />
