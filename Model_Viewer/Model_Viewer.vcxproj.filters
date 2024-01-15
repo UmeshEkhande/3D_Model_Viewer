@@ -26,10 +26,10 @@
     <QtRcc Include="Model_Viewer.qrc">
       <Filter>Resource Files</Filter>
     </QtRcc>
-    <QtMoc Include="Headers\Model_Viewer.h">
+    <QtMoc Include="Headers\ModelViewer.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <ClCompile Include="src\Model_Viewer.cpp">
+    <ClCompile Include="src\ModelViewer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClInclude Include="Headers\stdafx.h">
@@ -48,12 +48,14 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Headers\OpenGLWindow.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Shaders\vShader.glsl" />
     <None Include="Shaders\fShader.glsl" />
+    <None Include="Resources\cube_f.stl" />
+    <None Include="ClassDiagram.cd" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="Headers\OpenGLWindow.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
 </Project>

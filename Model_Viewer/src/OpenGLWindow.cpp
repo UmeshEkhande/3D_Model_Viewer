@@ -13,6 +13,18 @@ OpenGLWindow::OpenGLWindow(const QColor& background, QMainWindow* parent) :mBack
 {
     setParent(parent);
     setMinimumSize(300, 250);
+    mPostAttribute           = 0;
+    mNormalAttribute         = 0;
+    mProjectionMatrixUniform = 0;
+    mViewMatrixUniform       = 0;
+    mModelMatrixUniform      = 0;
+    mZoomFactor              = 1.0f;
+    mLightPositionLocation   = 0;
+    mNormalMatrixLocation    = 0;
+    mLightEnabled            = 0;
+    mColorModel              = 1;
+    mFlag                    = true;
+    mProgram                 = nullptr;
 
     const QStringList list = { "vShader.glsl","fShader.glsl" };
     mShaderWatcher = new QFileSystemWatcher(list, this);
@@ -27,30 +39,31 @@ void OpenGLWindow::reset() {
     makeCurrent();
     delete mProgram;
     mProgram = nullptr;
-    delete mVshader;
-    mVshader = nullptr;
-    delete mFshader;
-    mFshader = nullptr;
-    mVbo.destroy();
     doneCurrent();
-
     QObject::disconnect(mContextWatchConnection);
 }
 
-void OpenGLWindow::mouseMoveEvent(QMouseEvent* event) {
+void OpenGLWindow::mouseMoveEvent(QMouseEvent* event)
+{
     int dx = event->x() - lastPos.x();
     int dy = event->y() - lastPos.y();
 
-    if (event->buttons() & Qt::LeftButton) {
-        QQuaternion rotX = QQuaternion::fromAxisAndAngle(0.0f, 1.0f, 0.0f, 0.5f * dx);
-        QQuaternion rotY = QQuaternion::fromAxisAndAngle(1.0f, 0.0f, 0.0f, 0.5f * dy);
+    if (event->buttons() & Qt::LeftButton)
+    {
+        QQuaternion rotX = QQuaternion::fromAxisAndAngle(0.0f, 1.0f, 0.0f, 0.1f * dx);
+        QQuaternion rotY = QQuaternion::fromAxisAndAngle(1.0f, 0.0f, 0.0f, 0.1f * dy);
 
-        rotationAngle = rotX * rotY * rotationAngle;
-        update();
+        mRotationAngle = rotX * rotY * mRotationAngle;
+        
+    }
+    else if (event->buttons() & Qt::RightButton)
+    {
+
+        mPanTranslationFactor += QVector3D(0.1f * dx, -0.1f * dy, 0.0f);
     }
 
     lastPos = event->pos();
-
+    update();
 }
 
 void OpenGLWindow::wheelEvent(QWheelEvent* event) 
@@ -59,33 +72,41 @@ void OpenGLWindow::wheelEvent(QWheelEvent* event)
 
     if (delta > 0) {
 
-        zoomFactor *= 1.1f;
+        mZoomFactor *= 1.1f;
     }
     else {
-        zoomFactor /= 1.1f;
+        mZoomFactor /= 1.1f;
     }
     update();
-}
+}  
 
-
-void OpenGLWindow::updateData(const QVector<GLfloat>& vertices, const QVector<GLfloat>& normals)
+void OpenGLWindow::updateData(GLfloat* inVert, GLfloat* inNormal, GLuint* inIndices, int inNoOfIndices)
 {
-    verticesOfOrignalLine = vertices;
-    normalsOriginal = normals;
+    mVertices = inVert;
+    mNormals = inNormal;
+    mIndices = inIndices;
+    mNoOfIndices = inNoOfIndices;
     update();
 }
 
 void OpenGLWindow::clear()
 {
-    verticesOfOrignalLine.clear();
-    normalsOriginal.clear();
+    mVertices = nullptr;
+    mNormals = nullptr;
+    mIndices = nullptr;
+    mZoomFactor = 1.0f;
     update();
 }
 
 void OpenGLWindow::setFlag(bool inVal)
 {
-    flag = inVal;
+    mFlag = inVal;
     update();
+}
+
+void OpenGLWindow::setColorMode(int inColorModeValue)
+{
+    mColorModel = inColorModeValue;
 }
 
 void OpenGLWindow::shaderWatcher()
@@ -122,40 +143,52 @@ QString OpenGLWindow::readShaderSource(QString filePath)
     return fileString;
 }
 
-void OpenGLWindow::paintGL() {
+void OpenGLWindow::paintGL()
+{
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
 
+    mProjectionMatrix.setToIdentity();
+    mViewMatrix.setToIdentity();
+    mModelMatrix.setToIdentity();
+
     mProgram->bind();
-    QMatrix4x4 matrix_proj;
-    QMatrix4x4 matrix_view;
-    QMatrix4x4 matrix_model;
-    matrix_model.rotate(rotationAngle);
-    matrix_proj.ortho(-30.0f * zoomFactor, 30.0f * zoomFactor, -30.0f * zoomFactor, 30.0f * zoomFactor, 0.1f, 100.0f);
-    matrix_view.translate(0, 0, -15);
+    mModelMatrix.setToIdentity();
+    mModelMatrix.rotate(mRotationAngle);
+    mModelMatrix.translate(mPanTranslationFactor);
+    mModelMatrix.scale(mZoomFactor);
 
-    mProgram->setUniformValue(m_matrixUniform_proj, matrix_proj);
-    mProgram->setUniformValue(m_matrixUniform_view, matrix_view);
-    mProgram->setUniformValue(m_matrixUniform_model, matrix_model);
+    mProjectionMatrix.ortho(-40.0f, 40.0f, -40.0f, 40.0f, -100.0f, 100.0f);
 
-    GLfloat* verticesData = verticesOfOrignalLine.data();
-    GLfloat* normalData = normalsOriginal.data();
+    mProgram->setUniformValue(mProjectionMatrixUniform, mProjectionMatrix);
+    mProgram->setUniformValue(mViewMatrixUniform, mViewMatrix);
+    mProgram->setUniformValue(mModelMatrixUniform, mModelMatrix);
 
-    glVertexAttribPointer(m_posAttr, 3, GL_FLOAT, GL_FALSE, 0, verticesData);
-    glVertexAttribPointer(m_normals, 3, GL_FLOAT, GL_FALSE, 0, normalData);
+    mProgram->setUniformValue(mLightEnabled, mColorModel);
 
-    glEnableVertexAttribArray(m_posAttr);
-    glEnableVertexAttribArray(m_normals);
+    QMatrix3x3 normalMatrix = mModelMatrix.normalMatrix();
+    mProgram->setUniformValue(mNormalMatrixLocation, normalMatrix);
+    mProgram->setUniformValue(mLightPositionLocation, QVector3D(0, 0, 90));
 
-    if (flag) {
-        glDrawArrays(GL_TRIANGLES, 0, verticesOfOrignalLine.size() / 3);
+    glVertexAttribPointer(mPostAttribute, 3, GL_FLOAT, GL_FALSE, 0, mVertices);
+    glVertexAttribPointer(mNormalAttribute, 3, GL_FLOAT, GL_FALSE, 0, mNormals);
+
+    glEnableVertexAttribArray(mPostAttribute);
+    glEnableVertexAttribArray(mNormalAttribute);
+
+    if (mFlag) 
+    {
+        glDrawElements(GL_TRIANGLES, mNoOfIndices, GL_UNSIGNED_INT, mIndices);
     }
-    else {
-        glDrawArrays(GL_LINE_LOOP, 0, verticesOfOrignalLine.size() / 3);
+    else 
+    {
+        glDrawElements(GL_LINES, mNoOfIndices, GL_UNSIGNED_INT, mIndices);
     }
+
+    mProgram->release();
 }
 
 void OpenGLWindow::initializeGL() {
@@ -172,9 +205,13 @@ void OpenGLWindow::initializeGL() {
 
     mProgram->link();
 
-    m_posAttr = mProgram->attributeLocation("posAttr");
-    m_normals = mProgram->attributeLocation("normalAttr"); 
-    m_matrixUniform_proj = mProgram->uniformLocation("u_ProjMatrix");
-    m_matrixUniform_view = mProgram->uniformLocation("u_viewMatrix");
-    m_matrixUniform_model = mProgram->uniformLocation("u_modelMatrix");
+    mPostAttribute = mProgram->attributeLocation("posAttr");
+    mNormalAttribute = mProgram->attributeLocation("normalAttr");
+    mProjectionMatrixUniform = mProgram->uniformLocation("u_ProjMatrix");
+    mViewMatrixUniform = mProgram->uniformLocation("u_viewMatrix");
+    mModelMatrixUniform = mProgram->uniformLocation("u_modelMatrix");
+    mNormalMatrixLocation = mProgram->uniformLocation("normalMatrix");
+    mLightPositionLocation = mProgram->uniformLocation("lightPos");
+    mLightEnabled = mProgram->uniformLocation("u_lightingEnabled");
+
 }

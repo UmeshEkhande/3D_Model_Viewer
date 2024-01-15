@@ -38,7 +38,7 @@
   </ImportGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="QtSettings">
     <QtInstall>6.6.1_msvc2019_64</QtInstall>
-    <QtModules>core;gui;opengl;openglwidgets;widgets</QtModules>
+    <QtModules>core;gui;widgets;opengl;openglwidgets</QtModules>
     <QtBuildConfig>debug</QtBuildConfig>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Label="QtSettings">
@@ -61,16 +61,18 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <RunCodeAnalysis>true</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>F:\Umesh_Ekhande\OpenGL\3D_Model_Viewer_Project_It\3D_Model_Viewer\3D_Model_Viewer_Test\Model_Viewer\Headers;F:\Umesh_Ekhande\OpenGL\3D_Model_Viewer_Project_It\3D_Model_Viewer\3D_Model_Viewer_Test\Geometry\Headers;F:\Umesh_Ekhande\OpenGL\3D_Model_Viewer_Project_It\3D_Model_Viewer\3D_Model_Viewer_Test\ObjReader\Headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>F:\Umesh_Ekhande\OpenGL\3D_Model_Viewer_Project_It\3D_Model_Viewer\3D_Model_Viewer_Test\Model_Viewer\Headers2;F:\Umesh_Ekhande\OpenGL\3D_Model_Viewer_Project_It\3D_Model_Viewer\3D_Model_Viewer_Test\Model_Viewer\Headers;F:\Umesh_Ekhande\OpenGL\3D_Model_Viewer_Project_It\3D_Model_Viewer\3D_Model_Viewer_Test\Geometry\Headers;F:\Umesh_Ekhande\OpenGL\3D_Model_Viewer_Project_It\3D_Model_Viewer\3D_Model_Viewer_Test\ObjReader\Headers;F:\Umesh_Ekhande\OpenGL\3D_Model_Viewer_Project_It\3D_Model_Viewer\3D_Model_Viewer_Test\ObjFileReader\Headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <WarningLevel>Level1</WarningLevel>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>F:\Umesh_Ekhande\OpenGL\3D_Model_Viewer_Project_It\3D_Model_Viewer\3D_Model_Viewer_Test\Model_Viewer\x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>Geometry.lib;ObjReader.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Geometry.lib;ObjReader.lib;ObjFileReader.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
@@ -108,11 +110,11 @@
     </QtMoc>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Headers\OpenGLWindow.h" />
+    <QtMoc Include="Headers\OpenGLWindow.h" />
     <QtRcc Include="Model_Viewer.qrc" />
-    <QtMoc Include="Headers\Model_Viewer.h" />
+    <QtMoc Include="Headers\ModelViewer.h" />
     <ClCompile Include="src\OpenGLWindow.cpp" />
-    <ClCompile Include="src\Model_Viewer.cpp" />
+    <ClCompile Include="src\ModelViewer.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClInclude Include="Headers\stdafx.h" />
     <ClCompile Include="src\stdafx.cpp">
@@ -121,6 +123,8 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="ClassDiagram.cd" />
+    <None Include="Resources\cube_f.stl" />
     <None Include="Shaders\fShader.glsl" />
     <None Include="Shaders\vShader.glsl" />
   </ItemGroup>

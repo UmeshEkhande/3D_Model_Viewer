@@ -1,11 +1,11 @@
 #include "stdafx.h"
-#include "Model_Viewer.h"
+#include "ModelViewer.h"
 #include <QtWidgets/QApplication>
 
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv);
-    Model_Viewer w;
-    w.show();
-    return a.exec();
+    QApplication applicationObj(argc, argv);
+    ModelViewer modelViewerObj;
+    modelViewerObj.show();
+    return applicationObj.exec();
 }
