@@ -1,0 +1,2 @@
+#define OBJFILEREADER_API __declspec(dllexport)
+#define OBJFILEREADER_API __declspec(dllimport)
