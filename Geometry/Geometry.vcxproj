@@ -160,6 +160,8 @@
     <ClInclude Include="Headers\pch.h" />
     <ClInclude Include="Headers\Point2D.h" />
     <ClInclude Include="Headers\Point3D.h" />
+    <ClInclude Include="Headers\Triangle.h" />
+    <ClInclude Include="Headers\Triangulation.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Geometry.cpp" />
@@ -172,6 +174,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="src\Triangle.cpp" />
+    <ClCompile Include="src\Triangulation.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
