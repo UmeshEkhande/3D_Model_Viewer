@@ -26,7 +26,7 @@ OpenGLWindow::OpenGLWindow(const QColor& background, QMainWindow* parent) :mBack
     mFlag                    = true;
     mProgram                 = nullptr;
 
-    const QStringList list = { "vShader.glsl","fShader.glsl" };
+    const QStringList list = { "VertexShader.glsl","FragmentShader.glsl" };
     mShaderWatcher = new QFileSystemWatcher(list, this);
     connect(mShaderWatcher, &QFileSystemWatcher::fileChanged, this, &OpenGLWindow::shaderWatcher);
 }
@@ -43,6 +43,7 @@ void OpenGLWindow::reset() {
     QObject::disconnect(mContextWatchConnection);
 }
 
+//Function to modify the rotation angle and pan factor
 void OpenGLWindow::mouseMoveEvent(QMouseEvent* event)
 {
     int dx = event->x() - lastPos.x();
@@ -66,6 +67,7 @@ void OpenGLWindow::mouseMoveEvent(QMouseEvent* event)
     update();
 }
 
+//Function to modify the zoom factor when mouse wheel is scrolled
 void OpenGLWindow::wheelEvent(QWheelEvent* event) 
 {
     int delta = event->angleDelta().y();
@@ -80,6 +82,7 @@ void OpenGLWindow::wheelEvent(QWheelEvent* event)
     update();
 }  
 
+// Function to update the data required for rendering
 void OpenGLWindow::updateData(GLfloat* inVert, GLfloat* inNormal, GLuint* inIndices, int inNoOfIndices)
 {
     mVertices = inVert;
@@ -104,15 +107,17 @@ void OpenGLWindow::setFlag(bool inVal)
     update();
 }
 
+// Function to check color mode
 void OpenGLWindow::setColorMode(int inColorModeValue)
 {
     mColorModel = inColorModeValue;
 }
 
+// Function to keep watch over shader files
 void OpenGLWindow::shaderWatcher()
 {
-    QString vertexShaderSource = readShaderSource("./Shaders/vShader.glsl");
-    QString fragmentShaderSource = readShaderSource("./Shaders/fShader.glsl");
+    QString vertexShaderSource = readShaderSource("./Shaders/FragmentShader.glsl");
+    QString fragmentShaderSource = readShaderSource("./Shaders/FragmentShader.glsl");
 
     mProgram->release();
     mProgram->removeAllShaders();
@@ -123,6 +128,7 @@ void OpenGLWindow::shaderWatcher()
     mProgram->link();
 }
 
+// Function to read the shader data
 QString OpenGLWindow::readShaderSource(QString filePath)
 {
 
@@ -143,6 +149,7 @@ QString OpenGLWindow::readShaderSource(QString filePath)
     return fileString;
 }
 
+// Function that render the data
 void OpenGLWindow::paintGL()
 {
 
@@ -191,11 +198,12 @@ void OpenGLWindow::paintGL()
     mProgram->release();
 }
 
+// OpenGL - Function that read the uniform location
 void OpenGLWindow::initializeGL() {
     initializeOpenGLFunctions();
 
-    QString vertexShaderSource = readShaderSource("./Shaders/vShader.glsl");
-    QString fragmentShaderSource = readShaderSource("./Shaders/fShader.glsl");
+    QString vertexShaderSource = readShaderSource("./Shaders/VertexShader.glsl");
+    QString fragmentShaderSource = readShaderSource("./Shaders/FragmentShader.glsl");
 
     setMouseTracking(true);
 

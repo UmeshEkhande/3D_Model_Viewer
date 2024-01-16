@@ -143,14 +143,12 @@ void ModelViewer::clearnScreen()
     mRenderer->clear();
 }
 
-// Function to enable wireFrameMode
 void ModelViewer::wireFramButtonClicked()
 {
     mRenderer->setColorMode(2);
     mRenderer->setFlag(false);
 }
 
-// Function to set flag for color mode
 void ModelViewer::coloredButtonClicked()
 {
     mRenderer->setColorMode(1);

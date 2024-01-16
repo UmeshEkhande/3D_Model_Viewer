@@ -48,8 +48,8 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Shaders\vShader.glsl" />
-    <None Include="Shaders\fShader.glsl" />
+    <None Include="Shaders\VertexShader.glsl" />
+    <None Include="Shaders\FragmentShader.glsl" />
     <None Include="Resources\cube_f.stl" />
     <None Include="ClassDiagram.cd" />
   </ItemGroup>

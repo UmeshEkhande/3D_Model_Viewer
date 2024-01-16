@@ -125,8 +125,8 @@
   <ItemGroup>
     <None Include="ClassDiagram.cd" />
     <None Include="Resources\cube_f.stl" />
-    <None Include="Shaders\fShader.glsl" />
-    <None Include="Shaders\vShader.glsl" />
+    <None Include="Shaders\FragmentShader.glsl" />
+    <None Include="Shaders\VertexShader.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">
