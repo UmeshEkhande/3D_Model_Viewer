@@ -42,4 +42,7 @@ Click the "WireFrame" button to display the wireframe representation of the load
 ### Colored:
 
 Click the "Colored" button to render the 3D model with colors.
+
+## Video Demo
+Check out the video demonstration of the AQIVisualiser application [here](https://drive.google.com/file/d/1xK7dk1ueWRWS5TzWPsrnUh1Wxu3m0S5Z/view?usp=sharing).
    
