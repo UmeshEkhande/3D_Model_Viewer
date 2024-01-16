@@ -6,7 +6,7 @@ This project is a simple Model Viewer application created using QT and OpenGL. T
 ## Features
 - **Load OBJ:** Load and render an OBJ file, displaying the 3D model on the window.
 - **Clear:** Clear the window, removing any currently loaded models.
-- **WireFrame:** Display the wireframe representation of the loaded 3D model.
+- **Mesh View:** Display the Mesh representation of the loaded 3D model.
 - **Colored:** Render the 3D model with colors.
 
 ## Getting Started
@@ -29,19 +29,19 @@ Follow these instructions to get a copy of the project up and running on your lo
 ## Usage
 ### Load OBJ:
 
-Click the "Load Obj" button.
+Click the "Load Obj Model" button.
 Select an OBJ file from your local storage.
 The selected OBJ file will be rendered and displayed on the window.
 
 ### Clear:
 
-Click the "Clear" button to remove any loaded models from the window.
-### WireFrame:
+Click the "Clear Screen" button to remove any loaded models from the window.
+### Mesh View:
 
-Click the "WireFrame" button to display the wireframe representation of the loaded 3D model.
+Click the "Mesh View" button to display the wireframe representation of the loaded 3D model.
 ### Colored:
 
-Click the "Colored" button to render the 3D model with colors.
+Click the "Colored View" button to render the 3D model with colors.
 
 ## Video Demo
 Check out the video demonstration of the AQIVisualiser application [here](https://drive.google.com/file/d/1xK7dk1ueWRWS5TzWPsrnUh1Wxu3m0S5Z/view?usp=sharing).
