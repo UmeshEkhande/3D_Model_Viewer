@@ -138,6 +138,7 @@ void ModelViewer::openFileDialog()
      readObjFileData(fileName);
 }
 
+// Function to clear the screen
 void ModelViewer::clearnScreen()
 {
     mRenderer->clear();
